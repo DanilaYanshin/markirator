@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="655px" height="509px" viewBox="0 0 655 509" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>A4@1x</title>
+    <g id="A4" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Group" transform="translate(0.5, 0)">
+            <line x1="0.5" y1="81" x2="652.5" y2="81" id="Line" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="421.945037" y1="151.003884" x2="421" y2="201.5" id="Line-3" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square" transform="translate(421.5, 176.5) rotate(-1) translate(-421.5, -176.5)"></line>
+            <g id="газпром" transform="translate(107.5, 0)" fill="#FFFFFF">
+                <path d="M25.1438,47.524 L25.1438,55.3856 C25.1538,55.3788 25.1632,55.3678 25.1716,55.3589 C27.9311,52.5989 32.4063,52.5994 35.1641,55.3589 C37.9356,58.1199 37.9351,62.5988 35.1641,65.3551 C35.1578,65.3656 35.1343,65.3766 35.1269,65.3876 C35.1154,65.4091 35.097,65.4128 35.0881,65.4269 C32.3281,68.156 28.7399,69.5283 25.1433,69.5283 C21.5262,69.5283 17.9118,68.1486 15.1513,65.3965 C10.2924,60.5329 9.7136,53.0204 13.4245,47.5245 C13.9257,46.7833 14.5044,46.0782 15.1513,45.4235 C17.9118,42.6709 21.5262,41.2911 25.1433,41.2911 L25.1438,22.3896 C11.2538,22.3896 0,33.6513 0,47.5245 C0,61.4214 11.2538,72.6747 25.1433,72.6747 C32.3764,72.6747 38.9075,69.6059 43.4975,64.7103 L43.4975,47.524 L36.8521,47.524 L25.1438,47.524 L25.1438,47.524 Z M27.3833,28.0181 C26.7925,22.7833 27.0441,17.4673 28.7488,11.4724 C30.3131,6.1003 33.3996,1.255 34.2399,0 C34.7705,0.8928 38.6365,6.3776 40.1824,13.1247 C41.7147,19.8718 41.6853,24.0236 41.0206,28.7515 C39.8029,37.2568 35.9468,43.7743 34.2672,45.9535 C33.1218,44.4721 31.3552,41.4432 30.1784,38.6292 C30.1789,38.6292 27.9698,33.2576 27.3833,28.0181 L27.3833,28.0181 Z M36.255,35.5725 C36.0894,31.437 34.6845,28.4086 34.2672,27.6915 C33.7933,28.4086 32.1662,31.8779 32.1929,35.9431 C32.3124,40.1332 33.4851,42.8465 34.2399,44.2734 C35.021,42.8156 36.3719,39.6346 36.255,35.5725 Z M29.457,31.578 C29.457,30.1784 29.4822,25.5008 30.3498,21.6379 C31.2205,17.7708 32.8697,13.3234 34.2069,11.0551 C35.6648,13.4324 37.4911,18.5812 38.1265,21.6573 C38.7817,24.7444 39.1083,28.6859 38.9736,31.4879 C39.362,29.867 39.6697,27.15 39.7284,24.5772 C39.7866,22.0001 39.5334,17.6303 38.2816,13.0707 C37.0167,8.5096 34.5786,4.1707 34.2069,3.6103 C33.8468,4.1707 31.9135,7.6949 30.2077,13.2138 C29.7632,14.8625 28.9444,18.4533 28.8123,21.9425 C28.6466,26.175 29.2232,30.3923 29.457,31.578 L29.457,31.578 Z" id="Shape"></path>
+            </g>
+            <text id="ТУ-3435-008-88388785" font-family="TimesNewRomanPSMT, Times New Roman" font-size="21" font-weight="normal" fill="#FEFEFE">
+                <tspan x="202.906494" y="68">ТУ 3435-008-88388785-2015 (изм. 1)</tspan>
+            </text>
+            <text id="Блок-Совместной-Защи" font-family="TimesNewRomanPSMT, Times New Roman" font-size="36" font-weight="normal" fill="#FEFEFE">
+                <tspan x="166.567383" y="36">Блок Совместной Защиты</tspan>
+            </text>
+            <text id="БСЗ." font-family="TimesNewRomanPSMT, Times New Roman" font-size="21" font-weight="normal" fill="#FEFEFE">
+                <tspan x="0.153808594" y="138">БСЗ.</tspan>
+            </text>
+            <text id="РСЗ." font-family="TimesNewRomanPSMT, Times New Roman" font-size="21" font-weight="normal" fill="#FEFEFE">
+                <tspan x="72.1435547" y="138">РСЗ.</tspan>
+            </text>
+            <text id="Х." font-family="TimesNewRomanPSMT, Times New Roman" font-size="21" font-weight="normal" fill="#FEFEFE">
+                <tspan x="144.792236" y="138">Х.</tspan>
+            </text>
+            <text id="Х." font-family="TimesNewRomanPSMT, Times New Roman" font-size="21" font-weight="normal" fill="#FEFEFE">
+                <tspan x="196.792236" y="138">Х.</tspan>
+            </text>
+            <text id="Х." font-family="TimesNewRomanPSMT, Times New Roman" font-size="21" font-weight="normal" fill="#FEFEFE">
+                <tspan x="248.792236" y="138">Х.</tspan>
+            </text>
+            <text id="Х." font-family="TimesNewRomanPSMT, Times New Roman" font-size="21" font-weight="normal" fill="#FEFEFE">
+                <tspan x="300.792236" y="138">Х.</tspan>
+            </text>
+            <line x1="21" y1="150.5" x2="21.5" y2="507" id="Line-2" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="93.5" y1="151" x2="93.5" y2="463" id="Line-2" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square"></line>
+            <text id="Наименование-изделия" font-family="TimesNewRomanPSMT, Times New Roman" font-size="18" font-weight="normal" fill="#FEFEFE">
+                <tspan x="42.3901367" y="498">Наименование изделия – блок совместной защиты</tspan>
+            </text>
+            <text id="Изготовитель-БСЗ-–-О" font-family="TimesNewRomanPSMT, Times New Roman" font-size="18" font-weight="normal" fill="#FEFEFE">
+                <tspan x="114.837402" y="454">Изготовитель БСЗ – ООО «РегионСтройЗаказ»</tspan>
+            </text>
+            <text id="Метод-регулировки-то" font-family="TimesNewRomanPSMT, Times New Roman" font-size="18" font-weight="normal" fill="#FEFEFE">
+                <tspan x="166.405273" y="412">Метод регулировки тока</tspan>
+            </text>
+            <text id="Способ-регулировки-т" font-family="TimesNewRomanPSMT, Times New Roman" font-size="18" font-weight="normal" fill="#FEFEFE">
+                <tspan x="218.300781" y="367">Способ регулировки тока</tspan>
+            </text>
+            <text id="Номинальный-ток-кана" font-family="TimesNewRomanPSMT, Times New Roman" font-size="18" font-weight="normal" fill="#FEFEFE">
+                <tspan x="270.701172" y="324">Номинальный ток канала, А</tspan>
+            </text>
+            <text id="Климатическое-исполн" font-family="TimesNewRomanPSMT, Times New Roman" font-size="18" font-weight="normal" fill="#FEFEFE">
+                <tspan x="440.096191" y="194">Климатическое исполнение</tspan>
+            </text>
+            <text id="Х." font-family="TimesNewRomanPSMT, Times New Roman" font-size="21" font-weight="normal" fill="#FEFEFE">
+                <tspan x="352.792236" y="138">Х.</tspan>
+            </text>
+            <text id="ХХ." font-family="TimesNewRomanPSMT, Times New Roman" font-size="21" font-weight="normal" fill="#FEFEFE">
+                <tspan x="404.209473" y="138">ХХ.</tspan>
+            </text>
+            <line x1="422" y1="201.5" x2="652.5" y2="202" id="Line-5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="361" y1="150.5" x2="361" y2="244.5" id="Line-6" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="361" y1="244.5" x2="652.5" y2="245" id="Line-7" stroke="#FFFFFF" stroke-width="2" stroke-linecap="square"></line>
+            <text id="Тип-размещения-блока" font-family="TimesNewRomanPSMT, Times New Roman" font-size="18" font-weight="normal" fill="#FEFEFE">
+                <tspan x="374.707031" y="237">Тип размещения блока</tspan>
+            </text>
+            <text id="Количество-каналов" font-family="TimesNewRomanPSMT, Times New Roman" font-size="18" font-weight="normal" fill="#FEFEFE">
+                <tspan x="322.783691" y="280">Количество каналов</tspan>
+            </text>
+            <line x1="308" y1="150.5" x2="308" y2="288.5" id="Line-8" stroke="#FEFEFE" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="308.5" y1="289" x2="653" y2="288.5" id="Line-9" stroke="#FEFEFE" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="255.5" y1="151" x2="255.5" y2="332" id="Line-8" stroke="#FEFEFE" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="255.5" y1="332" x2="652.75" y2="332.25" id="Line-9" stroke="#FEFEFE" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="207.5" y1="376" x2="652.75" y2="375.75" id="Line-9" stroke="#FEFEFE" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="152.5" y1="420" x2="652.75" y2="419.5" id="Line-9" stroke="#FEFEFE" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="93.5" y1="463" x2="652.75" y2="463.25" id="Line-9" stroke="#FEFEFE" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="21.5" y1="507" x2="652.75" y2="507.25" id="Line-9" stroke="#FEFEFE" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="205" y1="150.5" x2="205.5" y2="376" id="Line-8" stroke="#FEFEFE" stroke-width="2" stroke-linecap="square"></line>
+            <line x1="152" y1="150.5" x2="152.5" y2="420" id="Line-8" stroke="#FEFEFE" stroke-width="2" stroke-linecap="square"></line>
+        </g>
+    </g>
+</svg>
