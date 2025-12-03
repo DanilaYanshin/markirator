@@ -1026,9 +1026,11 @@ class Ui_MainWindow(object):
                 draw.text((json_Product["Серийный_номер_Y"], json_Product["Серийный_номер_X"]), serial_num[i], font=font, fill=(0, 0, 0, 255))
                 draw.text((json_Product["Дата_Y"], json_Product["Дата_X"]), data_text, font=font, fill=(0, 0, 0, 255))
                 if SelectProduct_text == 'БСЗ':
+                    tok_match = re.search(r'\d+', modify_text)
+                    tok = tok_match.group() if tok_match else "?"
                     draw.text((json_Product["Масса_Y"], json_Product["Масса_X"]), "ХЗ", font=font, fill=(0, 0, 0, 255))
-                    draw.text((json_Product["Ток_Y"], json_Product["Ток_X"]), "ХЗ", font=font, fill=(0, 0, 0, 255))
-                    draw.text((json_Product["Климатическое_исполнение_Y"], json_Product["Климатическое_исполнение_X"]), "ХЗ", font=font, fill=(0, 0, 0, 255))
+                    draw.text((json_Product["Ток_Y"], json_Product["Ток_X"]), tok, font=font, fill=(0, 0, 0, 255))
+                    draw.text((json_Product["Климатическое_исполнение_Y"], json_Product["Климатическое_исполнение_X"]), modify_text.split('.')[-1], font=font, fill=(0, 0, 0, 255))
         # добавить сюда еще надписи для бсз
                 image = np.array(img_pil)
                 saveImg( result_path + '/' + new_modify_text + "_" + str(i) + "_" + data_text + "_" + partya_text + ".png", image)
@@ -1226,7 +1228,7 @@ class Ui_MainWindow(object):
                     )
                     qr.add_data(shifr_edin)
                     qr.make(fit=True)
-                    qr_image = qr.make_image(fill_color="black", back_color="white")
+                    qr_image = qr.make_image(fill_color="black", back_color="white").convert("RGBA")
 
                     background.paste(qr_image, (85, 225))
                     markirovki.append(result_path + '/' + new_modify_text + "_" + str(i) + "_" + data_text + "_" + partya_text + ".png")
@@ -1805,7 +1807,7 @@ class Ui_MainWindow(object):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
-    if not Path(ishodniki_path).exists() or not Path(reserv_path).exists() or not Path('ГАЗПРОМ.db').exists() or not Path('ТРАНСНЕФТЬ.db').exists() or not Path('Другие_компании.db').exists() or not Path('Logo.svg').exists() or not Path('Instrukcia.pdf').exists or not Path(ishodniki_path + '/' + "Квадрат.png").exists() or not Path(ishodniki_path + '/' + "Прямоугольник.png").exists() or not Path(ishodniki_path + '/' + "style.css"):
+    if not Path(ishodniki_path).exists() or not Path(reserv_path).exists() or not Path('ГАЗПРОМ.db').exists() or not Path('ТРАНСНЕФТЬ.db').exists() or not Path('Logo.svg').exists() or not Path('Instrukcia.pdf').exists or not Path(ishodniki_path + '/' + "Квадрат.png").exists() or not Path(ishodniki_path + '/' + "Прямоугольник.png").exists():
         QMessageBox.critical(None, "Ошибка", "Потерян один из исходных файлов. Программа не будет запущена")
         logger.log("Выведена ошибка. Потерян исходный файл. Программа не будет запущена")
         app.quit() 
