@@ -6,6 +6,7 @@ import re
 import sqlite3
 import random
 import requests
+from fpdf import FPDF
 from PyQt5.QtWidgets import *                                                                                                           
 from PyQt5.QtGui import *                                                                                                               
 from PyQt5.QtCore import *                                                                                                              
@@ -13,12 +14,12 @@ from PIL import Image
 from PyQt5 import QtCore, QtGui, QtWidgets                                                                                              
 from PyQt5.QtWidgets import QMessageBox, QAction, QMenu, QDialog, QScrollArea, QShortcut                                                                                             
 from PyQt5.QtSvg import QSvgWidget
-from reportlab.pdfgen import canvas
 from numpy import asarray
 import cv2
 from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import shutil
+from docx import Document
 from datetime import date, datetime
 from pathlib import Path
 import json
@@ -34,7 +35,6 @@ from reportlab.platypus import Image as im
 from reportlab.lib.units import cm
 from reportlab.lib.units import mm
 from io import BytesIO
-import os
 from PyQt5.QtCore import QCoreApplication, Qt
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib import colors
@@ -222,17 +222,19 @@ class Ui_MainWindow(object):
         self.packaging_table.setFont(QFont("Helvetica", self.razmer_shrifta))
         self.packaging_table.setColumnCount(2)
         self.packaging_table.setHorizontalHeaderLabels(["Наименование", "Количество"])
-        self.packaging_table.setRowCount(1)  # Начинаем с одной строки
-        self.packaging_table.setColumnWidth(0, 400)  # Широкий столбец для Наименования
-        self.packaging_table.setColumnWidth(1, 130)  # Узкий столбец для Количества
-        self.packaging_table.hide()  # Скрыто по умолчанию
-        self.packaging_table.setStyleSheet("QTableWidget { color: #ffffff; }")
+        self.packaging_table.setRowCount(1)
+        self.packaging_table.setColumnWidth(0, 375) 
+        self.packaging_table.setColumnWidth(1, 120)
+        self.packaging_table.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)
+        self.packaging_table.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
+        self.packaging_table.hide() 
         
         # Кнопка для добавления новой строки
         self.add_row_button = QtWidgets.QPushButton(MainWindow)
         self.add_row_button.setGeometry(QtCore.QRect(25, 340, 150, 30))
         self.add_row_button.setFont(QFont("Helvetica", self.razmer_shrifta))
         self.add_row_button.setText("Добавить строку")
+        self.add_row_button.setObjectName("classic")
         self.add_row_button.hide()
         self.add_row_button.clicked.connect(self.add_table_row) 
 
@@ -302,11 +304,6 @@ class Ui_MainWindow(object):
         instrukcia = QAction('Инструкция', MainWindow)
         instrukcia.triggered.connect(lambda: self.instrukcia_po_programme(MainWindow))
         spravka_menu.addAction(instrukcia)    
-# Проверка на блокировку при запуске
-        if not self.check_expiry_and_internet():
-            # Если False — закрываем программу
-            MainWindow.close()
-            sys.exit(1)  # Выход с ошибкой
 
 
     def izmenenie_razmera_shrifta(self, delta):
@@ -424,40 +421,17 @@ class Ui_MainWindow(object):
         self.add_row_button.show()   # Показать кнопку добавления строки
 
     def add_table_row(self):
+        if self.packaging_table.rowCount() >= 12:
+            QMessageBox.information(
+                None,
+                "Лимит",
+                "Максимальное количество строк — 12.\nБольше добавить нельзя."
+            )
+            logger.log("Попытка добавить 13-ю строку — отклонено")
+            return
         row_count = self.packaging_table.rowCount()
         self.packaging_table.insertRow(row_count)
         logger.log(f"Добавлена новая строка в таблицу. Текущие строки: {row_count + 1}")
-
-    # ПРОВЕРКА ДАТЫ ДЛЯ БЛОКИРОВКИ
-    def check_expiry_and_internet(self):
-        # Укажи "дедлайн" — после этой даты блокировка сработает
-        expiry_date = date(2026, 1, 12)  # Год, месяц, день — измени на нужный
-        
-        current_date = date.today()
-        
-        if current_date <= expiry_date:
-            logger.log("Дата в норме, программа работает.")
-            return True  # Всё ок, продолжаем
-        
-        # Дата истекла — проверяем интернет
-        try:
-            response = requests.get("https://www.google.com", timeout=5)  # Простой запрос
-            if response.status_code == 200:
-                # Интернет есть — блокируем
-                QMessageBox.critical(None, "Программа истекла", 
-                                    f"Программа больше не поддерживается.\n"
-                                    "Обратитесь к разработчику.")
-                logger.log("Блокировка: дата истекла и интернет доступен.")
-                return False  # Блокируем
-            else:
-                # Интернет "нет" (или ошибка) — разрешаем работу
-                logger.log("Дата истекла, но интернета нет — разрешаем работу.")
-                return True
-        except requests.exceptions.RequestException:
-            # Ошибка запроса = нет интернета — разрешаем
-            logger.log("Дата истекла, ошибка интернета — разрешаем работу.")
-            return True
-    #_____________________________
 
     @staticmethod                                                                                                                       
     def check_format(data_text):                                                                                                        
@@ -741,6 +715,7 @@ class Ui_MainWindow(object):
         partya_text = self.partya.text()                                                                                                
         kol_text = self.kol.text()                                                                                                      
         modify_text = self.modify.text()
+        markirovki_modify = modify_text
         modify_text = modify_text.upper()                                                                                              
         if self.auto_date_checkbox.isChecked():
             data_text = self.data.text()
@@ -880,6 +855,9 @@ class Ui_MainWindow(object):
 
         passport_path = json_Product.get("Путь_паспорта")
 
+        os.chdir(desktop_path)
+        os.mkdir("Партия " + company + "_" + kol_text + "_" + new_modify_text + "_" + data_text)
+        result_path = os.path.join(os.getcwd(), "Партия " + company + "_" + kol_text + "_" + new_modify_text + "_" + data_text)
         if radio == 't':
             if not passport_path or not isinstance(passport_path, str) or not passport_path.strip():
                 msg_box = QMessageBox()
@@ -950,10 +928,78 @@ class Ui_MainWindow(object):
                     if answer == QMessageBox.No:
                         self.progressBar.hide()
                         return
+        else:
+            try:
+                os.chdir(result_path)
+                # ----- 1. Получаем путь к шаблону паспорта -----
+                passport_name = self.json_data["Газпром"][SelectProduct_text]["Название_паспорта"]
+                passport_template = os.path.join(program_path, passport_name)
                 
-        os.chdir(desktop_path)
-        os.mkdir("Партия " + company + "_" + kol_text + "_" + new_modify_text + "_" + data_text)
-        result_path = os.path.join(os.getcwd(), "Партия " + company + "_" + kol_text + "_" + new_modify_text + "_" + data_text)
+                # ----- 2. Получаем символы для замены (через /) и убираем пробелы -----
+                symbols_raw = self.json_data["Газпром"][SelectProduct_text]["Символы_паспорта_через_слеш"]
+                symbols_cleaned = symbols_raw.replace(" ", "")
+                symbols_list = [s for s in symbols_cleaned.split('/') if s]   # список строк-маркеров
+                
+                replace_map = {}
+
+                replace_map = {
+                    symbols_list[0]: markirovki_modify, 
+                    symbols_list[1]: kol_text,   
+                    symbols_list[2]: partya_text,
+                    symbols_list[3]: data_text
+                }
+                # Проверка, что все маркеры описаны
+                for sym in symbols_list:
+                    if sym not in replace_map:
+                        logger.log(f"Для маркера '{sym}' не задана замена в replace_map")
+                
+                # ----- 4. Проверяем существование файла шаблона -----
+                if not os.path.exists(passport_template):
+                    logger.log(f"Файл паспорта не найден: {passport_template}")
+                
+                # ----- 5. Открываем документ -----
+                doc = Document(passport_template)
+                
+                # ----- 6. Замена в параграфах (без функций) -----
+                for paragraph in doc.paragraphs:
+                    for marker, replacement in replace_map.items():
+                        if marker in paragraph.text:
+                            # Проходим по всем runs (кускам текста с одинаковым стилем)
+                            for run in paragraph.runs:
+                                if marker in run.text:
+                                    run.text = run.text.replace(marker, str(replacement))
+                
+                # ----- 7. Замена в таблицах (без функций) -----
+                for table in doc.tables:
+                    for row in table.rows:
+                        for cell in row.cells:
+                            for paragraph in cell.paragraphs:
+                                for marker, replacement in replace_map.items():
+                                    if marker in paragraph.text:
+                                        for run in paragraph.runs:
+                                            if marker in run.text:
+                                                run.text = run.text.replace(marker, str(replacement))
+                
+                # ----- 8. Сохраняем результат -----
+                output_filename = f"Паспорт {partya_text}.docx"
+                output_path = os.path.join(result_path, output_filename)
+                doc.save(output_path)
+                
+                # Лог или print
+                print(f"Паспорт сохранён: {output_path}")
+            except Exception as e:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Critical)
+                msg.setWindowTitle("Ошибка создания паспорта")
+                msg.setText(f"Не удалось обработать паспорт:\n{str(e)}")
+                msg.setInformativeText("Пропустить и продолжить?")
+                msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                msg.button(QMessageBox.Yes).setText("Пропустить")
+                msg.button(QMessageBox.No).setText("Остановить")
+                reply = msg.exec_()
+                if reply == QMessageBox.No:
+                    sys.exit(1)   # или raise, или return
+                # Если "Пропустить" — просто продолжаем выполнение
         try:
             desktop_file = os.path.join(desktop_path, f"Паспорт {new_modify_text} {serial_num[0]}.pdf")
             result_file = os.path.join(result_path, f"Паспорт {new_modify_text} {serial_num[0]}.pdf")
@@ -968,6 +1014,152 @@ class Ui_MainWindow(object):
             logger.log(f'Файл перемещен из {desktop_file} в {result_file}')
         except Exception as e:
             logger.log(f"не удалось переместить файл: {str(e)}")
+
+# тут будет модуль создания листка с длиной кабеля
+        os.chdir(program_path)
+        if SelectProduct_text == "АЗ":
+            if radio == 't':
+                try:
+                    parts = markirovki_modify.split('-')
+                    segment = parts[4]
+
+                    # Ищем число (целое или дробное с точкой/запятой) в любом месте segment
+                    match = re.search(r'(\d+[.,]?\d*)', segment)
+                    if not match:
+                        raise ValueError(f"Не найдено число в сегменте '{segment}'")
+                    num2_str = match.group(1)
+                    num2 = float(num2_str.replace(',', '.'))
+
+                    # Из parts[3] ищем первое число
+                    match_num1 = re.search(r'\d+', parts[3])
+                    if not match_num1:
+                        raise ValueError(f"Не найдено число в parts[3] = '{parts[3]}'")
+                    num1 = int(match_num1.group())
+                    logger.log(f"Обнаружено: num1 = {num1}, num2 = {num2}")
+
+                    vec = []
+                    vec.append(num2 + 0.13)
+
+                    for i in range(1, num1):
+                        if i == 1:
+                            full_val = num2 - 1.86
+                        else:
+                            full_val = vec[i-1] - 1.86
+                        vec.append(full_val)
+
+                    vec0 = []
+                    for i in range(0, num1):
+                        val = vec[i]
+                        if (val * 100) % 10 != 0:
+                            vec0.append(((val + 0.1) // 0.1) / 10)
+                        else:
+                            vec0.append(val)
+                    total_length = sum(vec0)
+                    logger.log(f"Общая длина кабеля: {total_length:.2f}. Кабели: {vec}, кабели округленные: {vec0}")
+                except Exception as e:
+                    msg_box = QMessageBox()
+                    msg_box.setIcon(QMessageBox.Critical)
+                    msg_box.setWindowTitle("Ошибка обработки строки кабеля")
+                    msg_box.setText(f"Не удалось разобрать строку '{markirovki_modify}':\n{str(e)}")
+                    msg_box.setInformativeText("Пропустить этот заказ и продолжить?")
+                    msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                    msg_box.button(QMessageBox.Yes).setText("Пропустить")
+                    msg_box.button(QMessageBox.No).setText("Остановить")
+                    reply = msg_box.exec_()
+                    if reply == QMessageBox.No:
+                        sys.exit(1)   # или raise, или return
+                    else:
+                        num1 = 0
+                        vec0 = []
+                        total_length = 0.0
+                        logger.log("Обработка кабеля пропущена из-за ошибки")
+            else:
+                try:
+                    parts = markirovki_modify.split('-')
+                    match_num1 = re.match(r'^(\d+)', markirovki_modify.strip())
+                    if not match_num1:
+                        raise ValueError("Не удалось извлечь первое число из строки")
+                    num1 = int(match_num1.group(1))
+
+                    if len(parts) < 2:
+                        raise ValueError("Строка не содержит дефиса или второй части")
+                    second_part = parts[1]
+                    match_num2 = re.match(r'(\d+[.,]?\d*)х', second_part)
+                    if not match_num2:
+                        raise ValueError("Не удалось извлечь число перед 'х' во второй части")
+                    num2_str = match_num2.group(1)
+                    num2 = float(num2_str.replace(',', '.'))
+
+                    logger.log(f"Обнаружено: num1 = {num1}, num2 = {num2}")
+
+                    vec = []
+                    vec.append(num2 + 0.13)
+
+                    for i in range(1, num1):
+                        if i == 1:
+                            full_val = num2 - 1.86
+                        else:
+                            full_val = vec[i-1] - 1.86
+                        vec.append(full_val)
+
+                    vec0 = []
+                    for val in vec:
+                        if (val * 100) % 10 != 0:
+                            rounded = ((val + 0.1) // 0.1) / 10
+                            vec0.append(rounded)
+                        else:
+                            vec0.append(val)
+                    total_length = sum(vec0)
+                    logger.log(f"Общая длина кабеля: {total_length:.2f}. Кабели: {vec}, кабели округленные: {vec0}")
+                except Exception as e:
+                    msg_box = QMessageBox()
+                    msg_box.setIcon(QMessageBox.Critical)
+                    msg_box.setWindowTitle("Ошибка обработки строки кабеля")
+                    msg_box.setText(f"Не удалось разобрать строку '{markirovki_modify}':\n{str(e)}")
+                    msg_box.setInformativeText("Пропустить этот заказ и продолжить?")
+                    msg_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                    msg_box.button(QMessageBox.Yes).setText("Пропустить")
+                    msg_box.button(QMessageBox.No).setText("Остановить")
+                    reply = msg_box.exec_()
+                    if reply == QMessageBox.No:
+                        sys.exit(1)   # или raise, или return
+                    else:
+                        num1 = 0
+                        vec0 = []
+                        total_length = 0.0
+                        logger.log("Обработка кабеля пропущена из-за ошибки")
+            n = num1
+            m = int(kol_text)
+            pdf = FPDF()
+            pdf.add_page()
+
+            pdf.add_font('Arial', '', 'Pr3.otf', uni=True)
+            pdf.add_font('Arial', 'B', 'Pr3.otf', uni=True)
+
+            pdf.set_font('Arial', 'B', 24)
+            pdf.cell(0, 10, f'Заказ № {partya_text}', 0, 1, 'C')
+            pdf.set_font('Arial', '', 20)
+            pdf.cell(0, 8, f'{n} комплектов по {m} шт.', 0, 1, 'C')
+            pdf.set_font('Arial', '', 20)
+            pdf.cell(0, 8, f'Общая длина кабеля {total_length:.2f} м', 0, 1, 'C')
+            pdf.ln(5)
+
+            pdf.set_font('Arial', '', 18)
+
+            for i in range(n):
+                for j in range(m):
+                    text = f"{markirovki_modify} {vec0[i]} м"
+                    pdf.multi_cell(190, 8, text, border=1, align='C')
+                
+                if i < n - 1:
+                    pdf.multi_cell(190, 8, "", border=1, align='L')
+
+            pdf.output(result_path + "/" + "Этикетки на кабель партии " + partya_text + ".pdf")
+            logger.log(f"PDF с длинами кабеля создан. Комплектов: {n}, позиций в комплекте: {m}. Общая длина кабеля: {total_length:.2f}")
+                
+
+
+
         
 
         os.chdir(program_path)
@@ -1450,93 +1642,89 @@ class Ui_MainWindow(object):
         self.progressBar.hide()
 
     def upakovka_clicked(self):
-        logger.log("Начата генерация упаковочного листа на основе шаблона")
+        logger.log("Начата генерация упаковочного листа по координатам")
 
-        # Собираем данные из таблицы
+        # Собираем непустые строки
         table_data = []
         for row in range(self.packaging_table.rowCount()):
-            row_data = []
-            for column in range(self.packaging_table.columnCount()):
-                item = self.packaging_table.item(row, column)
-                row_data.append(item.text() if item else "")
-            if any(row_data):  # Добавляем только непустые строки
-                table_data.append(row_data)
+            name_item = self.packaging_table.item(row, 0)
+            qty_item  = self.packaging_table.item(row, 1)
+            name = name_item.text().strip() if name_item else ""
+            qty  = qty_item.text().strip()  if qty_item  else ""
+            if name or qty:
+                table_data.append((name, qty))
 
-        if not table_data:  # Проверяем, есть ли данные
-            QMessageBox.warning(None, "Ошибка", "Таблица пуста. Добавьте данные перед созданием упаковочного листа.")
-            logger.log("Попытка создания PDF с пустой таблицей")
+        if not table_data:
+            QMessageBox.warning(None, "Ошибка", "Нет данных для создания листа")
             return
 
-        # Путь к шаблону и выходному файлу
         template_path = os.path.join(program_path, "Упаковочный лист (А5).pdf")
+        if not os.path.exists(template_path):
+            QMessageBox.critical(None, "Ошибка", "Шаблон 'Упаковочный лист (А5).pdf' не найден")
+            return
+
         pdf_name = f"Упаковочный_лист_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
         output_path = os.path.join(desktop_path, pdf_name)
 
-        # Проверяем наличие шаблона
-        if not os.path.exists(template_path):
-            QMessageBox.critical(None, "Ошибка", "Шаблон 'Упаковочный лист (А5).pdf' не найден в директории программы.")
-            logger.log(f"Шаблон не найден: {template_path}")
-            return
-
         try:
-            # Регистрируем шрифт
             font_path = os.path.join(program_path, "GOST2304_TypeB.ttf")
             pdfmetrics.registerFont(TTFont('TypeB', font_path))
 
-            # Координаты для размещения данных (замените на ваши значения)
-            # Пример координат для A5 (148 × 210 мм, где 1 мм = 2.834645 точек)
-            start_x_name = 20 * mm  # Координата X для столбца "Наименование"
-            start_x_quantity = 100 * mm  # Координата X для столбца "Количество"
-            start_y = 190 * mm  # Начальная координата Y (сверху страницы)
-            line_height = 10 * mm  # Расстояние между строками
-
-            # Создаем временный PDF с данными
+            # ── Создаём оверлей с текстом по координатам ────────────────────────
             packet = BytesIO()
-            can = canvas.Canvas(packet, pagesize=A5)
+            can = canvas.Canvas(packet, pagesize=A5)   # 595 × 842 pt (A5)
             can.setFont('TypeB', 12)
 
-            # Записываем данные из таблицы
-            for i, (name, quantity) in enumerate(table_data):
-                y_position = start_y - i * line_height
-                can.drawString(start_x_name, y_position, name)
-                can.drawString(start_x_quantity, y_position, quantity)
+            # Координаты (в пунктах, начало снизу слева!)
+            x_name     = 50     # ≈ 21 мм от левого края
+            x_qty      = 305     # ≈ 120 мм от левого края
+            y_start    = 258     # ≈ 240 мм от низа (т.е. ~30 мм от верха A5)
+            line_step  = 12      # шаг вниз по 30 pt ≈ 10.6 мм
+
+            y = y_start
+            for name, qty in table_data:
+                can.setFillColor(colors.red)
+                can.drawString(x_name, y, name)
+                can.drawString(x_qty,  y, qty)
+                y -= line_step
+
+                # Если вышли за страницу — можно добавить логику новой страницы (пока не реализовано)
 
             can.save()
             packet.seek(0)
 
-            # Читаем шаблон и накладываем данные
+            # Накладываем текст на шаблон
             reader = PdfReader(template_path)
             writer = PdfWriter()
 
-            # Предполагаем, что данные записываются на первой странице
-            page = reader.pages[0]
-            overlay = PdfReader(packet)
-            page.merge_page(overlay.pages[0])
-            writer.add_page(page)
+            overlay_pdf = PdfReader(packet)
+            base_page = reader.pages[0]
+            base_page.merge_page(overlay_pdf.pages[0])
+            writer.add_page(base_page)
 
-            # Добавляем остальные страницы шаблона, если они есть
+            # Если в шаблоне несколько страниц — копируем остальные без изменений
             for i in range(1, len(reader.pages)):
                 writer.add_page(reader.pages[i])
 
-            # Сохраняем итоговый PDF
             with open(output_path, "wb") as f:
                 writer.write(f)
 
-            logger.log(f"Упаковочный лист успешно создан: {output_path}")
-            QMessageBox.information(None, "Успех", f"Упаковочный лист создан: {pdf_name}")
+            logger.log(f"Упаковочный лист создан: {output_path}")
+            QMessageBox.information(None, "Готово", f"Файл сохранён:\n{pdf_name}")
 
-            # Очищаем таблицу после успешного создания PDF
+            # Очистка таблицы
             self.packaging_table.setRowCount(1)
-            for col in range(self.packaging_table.columnCount()):
+            for col in range(2):
                 self.packaging_table.setItem(0, col, QtWidgets.QTableWidgetItem(""))
 
         except Exception as e:
-            logger.log(f"Ошибка при создании упаковочного листа: {str(e)}")
-            QMessageBox.critical(None, "Ошибка", f"Не удалось создать упаковочный лист: {str(e)}")
+            logger.log(f"Ошибка создания упаковочного листа: {str(e)}")
+            QMessageBox.critical(None, "Ошибка", str(e))
 
     def regenerate_clicked(self):
         self.VigruzButton.hide()                                                                                                 
-        nomer = self.code.text()                                                                                                        
+        nomer0 = self.code.text()  
+        nomer = nomer0.replace(" ", "")                                                                                                 
         self.text_browser.clear() 
 
         if nomer == '':
@@ -1823,7 +2011,8 @@ if __name__ == "__main__":
             logger.log(f"Неизвестная ошибка при загрузке CSS: {e}")                                                                                           
         MainWindow = QtWidgets.QMainWindow()                                                                                                
         ui = Ui_MainWindow()                                                                                                                
-        ui.setupUi(MainWindow)                                                                                                              
+        ui.setupUi(MainWindow)
+        ui.izmenenie_razmera_shrifta(0)                                                                                                             
         MainWindow.show()                                                                                                                   
         sys.exit(app.exec())   
 
