@@ -1,0 +1,33 @@
+name: Python application
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest  # Указываем среду сборки
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.x"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        # Здесь можно перечислить все библиотеки, которые вы используете,
+        # или создать файл requirements.txt со списком зависимостей.
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller --onefile --windowed Markirator_Stroytek.py  # Укажите имя вашего главного скрипта
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: my-program-exe
+        path: dist/*.exe
