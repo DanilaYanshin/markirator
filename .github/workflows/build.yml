@@ -1,4 +1,4 @@
-name: Сборка EXE для Windows
+name: Сборка EXE 
 
 on:
   push:
